@@ -1,0 +1,96 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "value"
+        },
+        // usually the pair region of the location set in the above parameter
+        // see https://docs.microsoft.com/en-us/azure/best-practices-availability-paired-regions
+        "locationDR": {
+            "value": "value"
+        },
+        "vNetName": {
+            "value": "value"
+        },
+        "vnetResourceGroupName": {
+            "value": "value"
+        },
+        "vNetNameDR": {
+            "value": "value"
+        },
+        "vnetResourceGroupNameDR": {
+            "value": "value"
+        },
+        "resourceGroups": {
+            "value": {
+                "web": {
+                    "source": "value",
+                    "destination": "value"
+                }
+            }
+        },
+        "cacheStorageAccountName": {
+            "value": "value"
+        },
+        "automationAccountName": {
+            "value": "value"
+        },
+        "recoveryVaultName": {
+            "value": "value"
+        },
+        "vmsDefinition": {
+            "value": {
+                "web1": {
+                    // The name of the subnet where the NIC will be joined to in the target (recovery) virtual network
+                    "subnetNameDR": "value",
+                    // the name of the virtual machine
+                    "name": "value",
+                    "zone": "1"
+                    // if you are using an availabilty set, put the name here
+                    //"availabilitySet": "value"
+                },
+                "web2": {
+                    // The name of the subnet where the NIC will be joined to in the target (recovery) virtual network
+                    "subnetNameDR": "value",
+                    "name": "value",
+                    "zone": "2"
+                }
+            }
+        },
+        // The log analytics resource should be in the same region as the recovery vault
+        "logAnalyticsName": {
+            "value": "value"
+        },
+        "logAnalyticsResourceGroupName": {
+            "value": "value"
+        },
+        // The diagnostics storage account 
+        "diagnosticsLogStorageAccountNameDR": {
+            "value": "value"
+        },
+        // The container name where the runbook artifacts reside
+        "runbookArtifactsContainerName": {
+            "value": "value"
+        },
+        "_runbookArtifactsLocation": {
+            "value": "https://your_storage_account_name.blob.core.windows.net"
+        },
+        // True if the recovery plan has never been deployed, false otherwise
+        "deployRecoveryPlan": {
+            "value": true
+        },
+        // Supply parameter _runbookArtifactsLocationSasToken through the Test-AzResourceGroupDeployment / New-AzResourceGroupDeployment cmdlets manually
+        // or add it as a parameter here.
+        // Here is how to get a SAS token:
+        // $ctx = New-AzStorageContext -StorageAccountName "<your_storage_account_name>" -StorageAccountKey XXXX
+        // $StartTime = Get-Date
+        // $EndTime = $startTime.AddHours(1.0)
+        // $sasToken = New-AzStorageContainerSASToken -Container "<runbookArtifactsContainerName>" -Permission r -StartTime $StartTime -ExpiryTime $EndTime -context $ctx
+        // $sasTokenSecure = ConvertTo-SecureString $sasToken -AsPlainText -Force
+        // -_runbookArtifactsLocationSasToken $sasTokenSecure        
+        "_runbookArtifactsLocationSasToken": {
+            "value": "value"
+        }
+    }
+}
