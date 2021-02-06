@@ -1,0 +1,220 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "recoveryVaultName": {
+            "value": "Alaska-WestUS-RSV" // TODO: Fill in parameter value
+        },
+        "location": {
+            "value": "WestUS" // TODO: Fill in parameter value
+        },
+        "backupPolicies": {
+            "value": [
+                {
+                    "name": "VMpolicy",
+                    "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+                    "properties": {
+                        "backupManagementType": "AzureIaasVM",
+                        "instantRPDetails": {},
+                        "schedulePolicy": {
+                            "schedulePolicyType": "SimpleSchedulePolicy",
+                            "scheduleRunFrequency": "Daily",
+                            "scheduleRunTimes": [
+                                "2019-11-07T22:00:00"
+                            ],
+                            "scheduleWeeklyFrequency": 0
+                        },
+                        "retentionPolicy": {
+                            "retentionPolicyType": "LongTermRetentionPolicy",
+                            "dailySchedule": {
+                                "retentionTimes": [
+                                    "2019-11-07T22:00:00"
+                                ],
+                                "retentionDuration": {
+                                    "count": 14,
+                                    "durationType": "Days"
+                                }
+                            }
+                        },
+                        "instantRpRetentionRangeInDays": 2,
+                        "timeZone": "Alaskan Standard Time",
+                        "protectedItemsCount": 0
+                    }
+                },
+                {
+                    "name": "sqlpolicy",
+                    "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+                    "properties": {
+                        "backupManagementType": "AzureWorkload",
+                        "workLoadType": "SQLDataBase",
+                        "settings": {
+                            "timeZone": "Alaskan Standard Time",
+                            "issqlcompression": true,
+                            "isCompression": true
+                        },
+                        "subProtectionPolicy": [
+                            {
+                                "policyType": "Full",
+                                "schedulePolicy": {
+                                    "schedulePolicyType": "SimpleSchedulePolicy",
+                                    "scheduleRunFrequency": "Weekly",
+                                    "scheduleRunDays": [
+                                        "Sunday"
+                                    ],
+                                    "scheduleRunTimes": [
+                                        "2019-11-07T22:00:00"
+                                    ],
+                                    "scheduleWeeklyFrequency": 0
+                                },
+                                "retentionPolicy": {
+                                    "retentionPolicyType": "LongTermRetentionPolicy",
+                                    "weeklySchedule": {
+                                        "daysOfTheWeek": [
+                                            "Sunday"
+                                        ],
+                                        "retentionTimes": [
+                                            "2019-11-07T22:00:00"
+                                        ],
+                                        "retentionDuration": {
+                                            "count": 104,
+                                            "durationType": "Weeks"
+                                        }
+                                    },
+                                    "monthlySchedule": {
+                                        "retentionScheduleFormatType": "Weekly",
+                                        "retentionScheduleWeekly": {
+                                            "daysOfTheWeek": [
+                                                "Sunday"
+                                            ],
+                                            "weeksOfTheMonth": [
+                                                "First"
+                                            ]
+                                        },
+                                        "retentionTimes": [
+                                            "2019-11-07T22:00:00"
+                                        ],
+                                        "retentionDuration": {
+                                            "count": 60,
+                                            "durationType": "Months"
+                                        }
+                                    },
+                                    "yearlySchedule": {
+                                        "retentionScheduleFormatType": "Weekly",
+                                        "monthsOfYear": [
+                                            "January"
+                                        ],
+                                        "retentionScheduleWeekly": {
+                                            "daysOfTheWeek": [
+                                                "Sunday"
+                                            ],
+                                            "weeksOfTheMonth": [
+                                                "First"
+                                            ]
+                                        },
+                                        "retentionTimes": [
+                                            "2019-11-07T22:00:00"
+                                        ],
+                                        "retentionDuration": {
+                                            "count": 10,
+                                            "durationType": "Years"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "policyType": "Differential",
+                                "schedulePolicy": {
+                                    "schedulePolicyType": "SimpleSchedulePolicy",
+                                    "scheduleRunFrequency": "Weekly",
+                                    "scheduleRunDays": [
+                                        "Monday"
+                                    ],
+                                    "scheduleRunTimes": [
+                                        "2017-03-07T02:00:00"
+                                    ],
+                                    "scheduleWeeklyFrequency": 0
+                                },
+                                "retentionPolicy": {
+                                    "retentionPolicyType": "SimpleRetentionPolicy",
+                                    "retentionDuration": {
+                                        "count": 30,
+                                        "durationType": "Days"
+                                    }
+                                }
+                            },
+                            {
+                                "policyType": "Log",
+                                "schedulePolicy": {
+                                    "schedulePolicyType": "LogSchedulePolicy",
+                                    "scheduleFrequencyInMins": 120
+                                },
+                                "retentionPolicy": {
+                                    "retentionPolicyType": "SimpleRetentionPolicy",
+                                    "retentionDuration": {
+                                        "count": 15,
+                                        "durationType": "Days"
+                                    }
+                                }
+                            }
+                        ],
+                        "protectedItemsCount": 0
+                    }
+                },
+                {
+                    "name": "filesharepolicy",
+                    "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+                    "properties": {
+                        "backupManagementType": "AzureStorage",
+                        "workloadType": "AzureFileShare",
+                        "schedulePolicy": {
+                            "schedulePolicyType": "SimpleSchedulePolicy",
+                            "scheduleRunFrequency": "Daily",
+                            "scheduleRunTimes": [
+                                "2019-11-07T04:30:00"
+                            ],
+                            "scheduleWeeklyFrequency": 0
+                        },
+                        "retentionPolicy": {
+                            "retentionPolicyType": "LongTermRetentionPolicy",
+                            "dailySchedule": {
+                                "retentionTimes": [
+                                    "2019-11-07T04:30:00"
+                                ],
+                                "retentionDuration": {
+                                    "count": 30,
+                                    "durationType": "Days"
+                                }
+                            }
+                        },
+                        "timeZone": "Alaskan Standard Time",
+                        "protectedItemsCount": 0
+                    }
+                }
+            ]
+        },
+        "protectionContainers": {
+            "value": []
+        },
+        "diagnosticLogsRetentionInDays": {
+            "value": 365
+        },
+        "diagnosticStorageAccountId": {
+            "value": ""
+        },
+        "workspaceId": {
+            "value": ""
+        },
+        "eventHubAuthorizationRuleId": {
+            "value": ""
+        },
+        "eventHubName": {
+            "value": ""
+        },
+        "lockForDeletion": {
+            "value": true
+        },
+        "tags": {
+            "value": {}
+        }
+    }
+}

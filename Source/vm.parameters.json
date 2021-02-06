@@ -1,0 +1,297 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vmNames": {
+            "value": ["NateTestVM1"]
+        },
+        "vmNamePrefix": {
+            "value": "" // TODO: Fill in parameter value
+        },
+        "vmNumberOfInstances": {
+            "value": 1
+        },
+        "vmInitialNumber": {
+            "value": 1
+        },
+        "location": {
+            "value": "westus" // TODO: Fill in parameter value
+        },
+        "vmSize": {
+            "value": "Standard_D2s_v3"
+        },
+        "imageReference": {
+            "value": {
+                "publisher": "MicrosoftWindowsServer",
+                "offer": "WindowsServer",
+                "sku": "2019-Datacenter",
+                "version": "latest"
+            }
+        },
+        "plan": {
+            "value": {
+            }
+        },
+        "osDisk": {
+            "value": {
+                "createOption": "FromImage",
+                "managedDisk": {
+                    "storageAccountType": "StandardSSD_LRS"
+                },
+                "diskSizeGB": 150
+            }
+        },
+        "dataDisks": {
+            "value": [
+                {
+                    "lun": 0,
+                    "managedDisk": {
+                        "storageAccountType": "StandardSSD_LRS"
+                    },
+                    "diskSizeGB": 150,
+                    "caching": "ReadWrite",
+                    "createOption": "Empty"
+                }
+            ]
+        },
+        "ultraSSDEnabled": {
+            "value": false
+        },
+        "adminUsername": {
+            "value": "azureadminuser01" // TODO: Fill in parameter value
+        },
+        "adminPassword": {
+            "reference": {
+            "keyVault": {
+                "id": "/subscriptions/1db25687-69f8-41dc-845f-2958b094e631/resourceGroups/Automation-RG/providers/Microsoft.KeyVault/vaults/Nates-KeyVault"
+                },
+                "secretName": "AdminPassword"
+            }
+        },
+        "customData": {
+            "value": ""
+        },
+        "windowsConfiguration": {
+            "value": {
+                "enableAutomaticUpdates": false,
+                "provisionVmAgent": true
+            }
+        },
+        "linuxConfiguration": {
+            "value": {
+                //"disablePasswordAuthentication": false
+            }
+        },
+        "certificatesToBeInstalled": {
+            "value": [
+            ]
+        },
+        "allowExtensionOperations": {
+            "value": true
+        },
+        "requireGuestProvisionSignal": {
+            "value": false
+        },
+        "availabilitySetName": {
+            "value": ""
+        },
+        "availabilitySetFaultDomain": {
+            "value": 2
+        },
+        "availabilitySetUpdateDomain": {
+            "value": 5
+        },
+        "availabilitySetSku": {
+            "value": "Aligned"
+        },
+        "scaleSetName": {
+            "value": ""
+        },
+        "scaleSetFaultDomain": {
+            "value": 2
+        },
+        "proximityPlacementGroupName": {
+            "value": ""
+        },
+        "proximityPlacementGroupType": {
+            "value": "Standard"
+        },
+        "useAvailabilityZone": {
+            "value": false
+        },
+        "subnetId": {
+            "value": "/subscriptions/1db25687-69f8-41dc-845f-2958b094e631/resourceGroups/asr-prod-rg/providers/Microsoft.Network/virtualNetworks/asr-prod-rg-vnet/Subnets/default" // TODO: Fill in parameter value
+        },
+        "vmIPAddress": {
+            "value": ""
+        },
+        "dnsServers": {
+            "value": [
+            ]
+        },
+        "enablePublicIP": {
+            "value": false
+        },
+        "enableIPForwarding": {
+            "value": false
+        },
+        "enableAcceleratedNetworking": {
+            "value": false
+        },
+        "loadBalancerBackendPoolId": {
+            "value": ""
+        },
+        "applicationSecurityGroupId": {
+            "value": ""
+        },
+        "vmPriority": {
+            "value": "Regular"
+        },
+        "enableEvictionPolicy": {
+            "value": false
+        },
+        "maxPriceForLowPriorityVm": {
+            "value": ""
+        },
+        "dedicatedHostId": {
+            "value": ""
+        },
+        "licenseType": {
+            "value": ""
+        },
+        "enableMicrosoftAntiMalware": {
+            "value": false
+        },
+        "microsoftAntiMalwareSettings": {
+            "value": {
+            }
+        },
+        "enableWindowsMMA-Agent": {
+            "value": true
+        },
+        "enableLinuxMMA-Agent": {
+            "value": false
+        },
+        "enableWindowsDependency-Agent": {
+            "value": false
+        },
+        "enableLinuxDependency-Agent": {
+            "value": false
+        },
+        "enableNetworkWatcherWindows": {
+            "value": false
+        },
+        "enableNetworkWatcherLinux": {
+            "value": false
+        },
+        "enableWindowsDiskEncryption": {
+            "value": false
+        },
+        "enableServerSideEncryption": {
+            "value": false
+        },
+        "enableLinuxDiskEncryption": {
+            "value": false
+        },
+        "diskKeyEncryptionAlgorithm": {
+            "value": "RSA-OAEP"
+        },
+        "keyEncryptionKeyURL": {
+            "value": ""
+        },
+        "keyVaultUri": {
+            "value": ""
+        },
+        "keyVaultId": {
+            "value": ""
+        },
+        "diskEncryptionVolumeType": {
+            "value": "All"
+        },
+        "forceUpdateTag": {
+            "value": "1.0"
+        },
+        "resizeOSDisk": {
+            "value": false
+        },
+        "windowsScriptExtensionFileData": {
+            "value": [
+            ]
+        },
+        "windowsScriptExtensionCommandToExecute": {
+            "value": ""
+        },
+        "backupVaultName": {
+            "value": "asr-rsv-01" //remove the vault name if you don't want to do backups
+        },
+        "backupVaultResourceGroup": {
+            "value": "asr-rsv"
+        },
+        "backupPolicyName": {
+            "value": "VMpolicy"
+        },
+        "domainName": {
+            "value": ""
+        },
+        "domainJoinUser": {
+            "value": ""
+        },
+        "domainJoinOU": {
+            "value": ""
+        },
+        "domainJoinPassword": {
+            "value": "" // TODO: Fill in parameter value
+        },
+        "domainJoinRestart": {
+            "value": false
+        },
+        "domainJoinOptions": {
+            "value": 3
+        },
+        "dscConfiguration": {
+            "value": {
+            }
+        },
+        "enableBootDiagnostics": {
+            "value": true
+        },
+        "bootDiagnosticStorageAccountName": {
+            "value": "asrprodnate"
+        },
+        "diagnosticLogsRetentionInDays": {
+            "value": 365
+        },
+        "diagnosticStorageAccountId": {
+            "value": "/subscriptions/1db25687-69f8-41dc-845f-2958b094e631/resourceGroups/asr-prod-rg/providers/Microsoft.Storage/storageAccounts/asrprodnate"
+        },
+        "workspaceId": {
+            "value": "/subscriptions/1db25687-69f8-41dc-845f-2958b094e631/resourcegroups/asr-la-rg/providers/microsoft.operationalinsights/workspaces/asr-la-01"
+        },
+        "eventHubAuthorizationRuleId": {
+            "value": ""
+        },
+        "eventHubName": {
+            "value": ""
+        },
+        "lockForDeletion": {
+            "value": false
+        },
+        "tags": {
+            "value": {
+                "ApplicationName": "Test",
+                "ContactEmail": "<ReplaceWith-ContactEmail>",
+                "Department": "doa",
+                "DepartmentOwner": "<ReplaceWith-DepartmentOwner>",
+                "Division": "oit",
+                "DepartmentNumber": "<ReplaceWith-DepartmentNumber>",
+                "Environment": "prod",
+                "Owner": "nate",
+                "ServiceClass": "<ReplaceWith-ServiceClass>",
+                "AccountingTemplate": "<ReplaceWith-AccountingTemplate>"
+            }
+        },
+        "cuaId": {
+            "value": "adb8eac6-989a-5354-8580-19055546ec74"
+        }
+    }
+}

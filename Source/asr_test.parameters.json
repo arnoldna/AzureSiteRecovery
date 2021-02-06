@@ -1,0 +1,94 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "westus"
+        },
+        "locationDR": {
+            "value": "westus2"
+        },
+        "vNetName": {
+            "value": "asr-vnet"
+        },
+        "vnetResourceGroupName": {
+            "value": "asr-network-rg"
+        },
+        "vNetNameDR": {
+            "value": "asr-dr-vnet"
+        },
+        "vnetResourceGroupNameDR": {
+            "value": "asr-dr-network-rg"
+        },
+        "resourceGroups": {
+            "value": {
+                "web": {
+                    "source": "asr-prod-rg",
+                    "destination": "asr-prod-dr-rg"
+                }
+            }
+        },
+        "cacheStorageAccountName": {
+            "value": "asrprodnate"
+        },
+        "automationAccountName": {
+            "value": "asr-automation-acct"
+        },
+        "recoveryVaultName": {
+            "value": "asr-rsv-01"
+        },
+        "vmsDefinition": {
+            "value": {
+                "web1": {
+                    // The name of the subnet where the NIC will be joined to in the target (recovery) virtual network
+                    "subnetNameDR": "default",
+                    // the name of the virtual machine
+                    "name": "testvm01",
+                    "zone": "1"
+                    // if you are using an availabilty set, put the name here
+                    //"availabilitySet": "value"
+                },
+                "web2": {
+                    // The name of the subnet where the NIC will be joined to in the target (recovery) virtual network
+                    "subnetNameDR": "default",
+                    "name": "testvm02",
+                    "zone": "2"
+                }
+            }
+        },
+        // The log analytics resource should be in the same region as the recovery vault
+        "logAnalyticsName": {
+            "value": "asr-la-01"
+        },
+        "logAnalyticsResourceGroupName": {
+            "value": "asr-la-rg"
+        },
+        // The diagnostics storage account 
+        "diagnosticsLogStorageAccountNameDR": {
+            "value": "asrproddrnate"
+        },
+        // The container name where the runbook artifacts reside
+        "runbookArtifactsContainerName": {
+            "value": "artifacts"
+        },
+        "_runbookArtifactsLocation": {
+            "value": "https://asrprodnate.blob.core.windows.net"
+        },
+        // True if the recovery plan has never been deployed, false otherwise
+        "deployRecoveryPlan": {
+            "value": true
+        },
+        // Supply parameter _runbookArtifactsLocationSasToken through the Test-AzResourceGroupDeployment / New-AzResourceGroupDeployment cmdlets manually
+        // or add it as a parameter here.
+        // Here is how to get a SAS token:
+        // $ctx = New-AzStorageContext -StorageAccountName "<your_storage_account_name>" -StorageAccountKey XXXX
+        // $StartTime = Get-Date
+        // $EndTime = $startTime.AddHours(1.0)
+        // $sasToken = New-AzStorageContainerSASToken -Container "<runbookArtifactsContainerName>" -Permission r -StartTime $StartTime -ExpiryTime $EndTime -context $ctx
+        // $sasTokenSecure = ConvertTo-SecureString $sasToken -AsPlainText -Force
+        // -_runbookArtifactsLocationSasToken $sasTokenSecure
+        "_runbookArtifactsLocationSasToken": {
+            "value": "?sv=2019-02-02&sr=c&sig=z2ywH%2Focjxf60%2FJkm2gqnnV6thW1P9ebnVDzAGYRWSI%3D&st=2021-01-13T16%3A59%3A20Z&se=2021-01-13T17%3A59%3A20Z&sp=r"
+        }
+    }
+}
