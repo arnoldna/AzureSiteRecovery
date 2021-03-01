@@ -7,6 +7,66 @@
 #       4 - Storage Accounts for Migration
 #
 
+[CmdletBinding()]
+param (
+    [Parameter()]
+    [string]
+    $PrimaryRecoveryServicesVaultName
+)
+function jobStatus {
+        param ([object]$TempASRJob)
+        while (($TempASRJob.State -eq "InProgress") -or ($TempASRJob.State -eq "NotStarted")){
+                #If the job hasn't completed, Start-Sleep for 10 seconds before checking the job status again
+                Write-Output " **** ASR Job Running ****"
+                Start-Sleep 10;
+                $TempASRJob = Get-AzRecoveryServicesAsrJob -Job $TempASRJob
+        }
+        Write-Output $TempASRJob.State
+}
+
+###############################################
+# Variables
+###############################################
+
+$PrimaryRecoveryServicesVaultName = "a2a-westus-rsv" # This is the DR Site Vault.
+$PrimaryRecoveryVaultResourceGroup = "a2a-westus-rsv-rg" # This is the resource group of the DR Site Vault.
+$PrimaryRecoveryVaultSubscription = "1db25687-69f8-41dc-845f-2958b094e631" # This is the subscription of the DR Site Vault.
+$PrimaryRecoveryServicesFabric = "A2A-WestUS2-Fabric" # Name for the ASR Service Fabric
+$PrimaryProtectionContainer = "A2A-WestUS2-ProtectionContainer" # Name for the ASR Service Fabric
+
+$ReplicationPolicyName = "A2A-Policy"
+
+$FailbackRecoveryServicesVaultName = "a2a-westus2-rsv" # This is the normal production recovery services vault.
+$FailbackRecoveryVaultResourceGroup = "a2a-westus2-rsv-rg" # This is the resource group of the normal production recovery services vault.
+$FailbackRecoveryVaultSubscription = "1db25687-69f8-41dc-845f-2958b094e631" # This is the subscription of the normal production recovery services vault.
+$FailbackRecoveryServicesFabric = "A2A-WestUS-Fabric" # Name for the ASR Service Fabric for normal production recovery services location.
+$FailbackProtectionContainer = "A2A-WestUS-ProtectionContainer" 
+
+################################################
+# Check Resource Availability
+################################################
+
+# Get ASR Recovery Services Vault Location
+$PrimaryRSV = Get-AzRecoveryServicesVault -Name $PrimaryRecoveryServicesVaultName -ResourceGroupName $PrimaryRecoveryVaultResourceGroup
+$PrimaryRSVLocation = $PrimaryRSV.Location
+
+# Get ASR Recovery Services Vault Location
+$FailbackRSV = Get-AzRecoveryServicesVault -Name $FailbackRecoveryServicesVaultName -ResourceGroupName $FailbackRecoveryVaultResourceGroup
+$FailbackRSVLocation = $FailbackRSV.Location
+
+################################################
+# Get Vault and Set Vault Context
+################################################
+$vault = Get-AzRecoveryServicesVault -Name $PrimaryRecoveryServicesVaultName -ResourceGroupName $PrimaryRecoveryVaultResourceGroup
+
+Set-AzRecoveryServicesAsrVaultContext -Vault $vault
+
+#Create Primary ASR fabric
+$TempASRJob = New-AzRecoveryServicesAsrFabric -Azure -Location $PrimaryRSVLocation -Name $PrimaryRecoveryServicesFabric
+
+jobStatus($TempASRJob)
+
+$PrimaryFabric = Get-AzRecoveryServicesAsrFabric -Name $PrimaryRecoveryServicesFabric
 
 
 # # Get details of the virtual machine
@@ -17,92 +77,54 @@
 # $OSDiskVhdURI = $VM.StorageProfile.OsDisk.Vhd
 # $DataDisk1VhdURI = $VM.StorageProfile.DataDisks[0].Vhd
 
-New-AzResourceGroup -Name "a2a-westus-rsv-rg" -Location "West US" -Tag @{Environment="ASR"; Failover="RSV"}
-#Create a new Recovery services vault in the recovery region
-$vault = New-AzRecoveryServicesVault -Name "a2a-RecoveryVault-1" -ResourceGroupName "a2a-westus-rsv-rg" -Location "West US"
+# New-AzResourceGroup -Name "a2a-westus-rsv-rg" -Location "West US" -Tag @{Environment="ASR"; Failover="RSV"}
+# #Create a new Recovery services vault in the recovery region
+# $vault = New-AzRecoveryServicesVault -Name "a2a-RecoveryVault-1" -ResourceGroupName "a2a-westus-rsv-rg" -Location "West US"
 
-Write-Output $vault
+# Write-Output $vault
 
-#Setting the vault context.
+# #Setting the vault context.
+# Set-AzRecoveryServicesAsrVaultContext -Vault $vault
+
+################################################
+# Get Vault and Set Vault Context
+################################################
+$vault = Get-AzRecoveryServicesVault -Name $FailbackRecoveryServicesVaultName -ResourceGroupName $FailbackRecoveryVaultResourceGroup
+
 Set-AzRecoveryServicesAsrVaultContext -Vault $vault
-
 #Set the vault context for the PowerShell session.
 Set-AzRecoveryServicesAsrVaultContext -Vault $vault
-
-#Create Primary ASR fabric
-$TempASRJob = New-AzRecoveryServicesAsrFabric -Azure -Location 'WestUS2' -Name "A2A-WestUS2-Fabric"
-
-# Track Job status to check for completion
-while (($TempASRJob.State -eq "InProgress") -or ($TempASRJob.State -eq "NotStarted")){
-        #If the job hasn't completed, Start-Sleep for 10 seconds before checking the job status again
-        Start-Sleep 10;
-        $TempASRJob = Get-AzRecoveryServicesAsrJob -Job $TempASRJob
-}
-
-#Check if the Job completed successfully. The updated job state of a successfully completed job should be "Succeeded"
-Write-Output $TempASRJob.State
-
-$PrimaryFabric = Get-AzRecoveryServicesAsrFabric -Name "A2A-WestUS2-Fabric"
 
 ########################################
 #Create Recovery ASR fabric
 ########################################
-$TempASRJob = New-AzRecoveryServicesAsrFabric -Azure -Location 'WestUS'  -Name "A2A-WestUS-Fabric"
+$TempASRJob = New-AzRecoveryServicesAsrFabric -Azure -Location $FailbackRSVLocation -Name $FailbackRecoveryServicesFabric
 
-# Track Job status to check for completion
-while (($TempASRJob.State -eq "InProgress") -or ($TempASRJob.State -eq "NotStarted")){
-        Start-Sleep 10;
-        $TempASRJob = Get-AzRecoveryServicesAsrJob -Job $TempASRJob
-}
+jobStatus($TempASRJob)
 
-#Check if the Job completed successfully. The updated job state of a successfully completed job should be "Succeeded"
-Write-Output $TempASRJob.State
-
-$RecoveryFabric = Get-AzRecoveryServicesAsrFabric -Name "A2A-WestUS-Fabric"
+$RecoveryFabric = Get-AzRecoveryServicesAsrFabric -Name $FailbackRecoveryServicesFabric
 
 #Create a Protection container in the primary Azure region (within the Primary fabric)
-$TempASRJob = New-AzRecoveryServicesAsrProtectionContainer -InputObject $PrimaryFabric -Name "A2A-WestUS2-ProtectionContainer"
+$TempASRJob = New-AzRecoveryServicesAsrProtectionContainer -InputObject $PrimaryFabric -Name $PrimaryProtectionContainer
+jobStatus($TempASRJob)
 
-#Track Job status to check for completion
-while (($TempASRJob.State -eq "InProgress") -or ($TempASRJob.State -eq "NotStarted")){
-        Start-Sleep 10;
-        $TempASRJob = Get-AzRecoveryServicesAsrJob -Job $TempASRJob
-}
-
-Write-Output $TempASRJob.State
-
-$PrimaryProtContainer = Get-AzRecoveryServicesAsrProtectionContainer -Fabric $PrimaryFabric -Name "A2A-WestUS2-ProtectionContainer"
+$PrimaryProtContainer = Get-AzRecoveryServicesAsrProtectionContainer -Fabric $PrimaryFabric -Name $PrimaryProtectionContainer
 
 
 #Create a Protection container in the recovery Azure region (within the Recovery fabric)
-$TempASRJob = New-AzRecoveryServicesAsrProtectionContainer -InputObject $RecoveryFabric -Name "A2A-WestUS-ProtectionContainer"
+$TempASRJob = New-AzRecoveryServicesAsrProtectionContainer -InputObject $RecoveryFabric -Name $FailbackProtectionContainer
 
-#Track Job status to check for completion
-while (($TempASRJob.State -eq "InProgress") -or ($TempASRJob.State -eq "NotStarted")){
-        Start-Sleep 10;
-        $TempASRJob = Get-AzRecoveryServicesAsrJob -Job $TempASRJob
-}
+jobStatus($TempASRJob)
 
-#Check if the Job completed successfully. The updated job state of a successfully completed job should be "Succeeded"
-
-Write-Output $TempASRJob.State
-
-$RecoveryProtContainer = Get-AzRecoveryServicesAsrProtectionContainer -Fabric $RecoveryFabric -Name "A2A-WestUS-ProtectionContainer"
+$RecoveryProtContainer = Get-AzRecoveryServicesAsrProtectionContainer -Fabric $RecoveryFabric -Name $FailbackProtectionContainer
 
 
 #Create replication policy
-$TempASRJob = New-AzRecoveryServicesAsrPolicy -AzureToAzure -Name "A2A-Policy" -RecoveryPointRetentionInHours 24 -ApplicationConsistentSnapshotFrequencyInHours 4
+$TempASRJob = New-AzRecoveryServicesAsrPolicy -AzureToAzure -Name $ReplicationPolicyName -RecoveryPointRetentionInHours 24 -ApplicationConsistentSnapshotFrequencyInHours 4
 
-#Track Job status to check for completion
-while (($TempASRJob.State -eq "InProgress") -or ($TempASRJob.State -eq "NotStarted")){
-        Start-Sleep 10;
-        $TempASRJob = Get-AzRecoveryServicesAsrJob -Job $TempASRJob
-}
+jobStatus($TempASRJob)
 
-#Check if the Job completed successfully. The updated job state of a successfully completed job should be "Succeeded"
-Write-Output $TempASRJob.State
-
-$ReplicationPolicy = Get-AzRecoveryServicesAsrPolicy -Name "A2A-Policy"
+$ReplicationPolicy = Get-AzRecoveryServicesAsrPolicy -Name $ReplicationPolicyName
 
 #Create Protection container mapping between the Primary and Recovery Protection Containers with the Replication policy
 $TempASRJob = New-AzRecoveryServicesAsrProtectionContainerMapping -Name "A2A-Primary-To-Recovery" -Policy $ReplicationPolicy -PrimaryProtectionContainer $PrimaryProtContainer -RecoveryProtectionContainer $RecoveryProtContainer
